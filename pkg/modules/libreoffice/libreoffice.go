@@ -3,11 +3,10 @@ package libreoffice
 import (
 	"fmt"
 
-	flag "github.com/spf13/pflag"
-
 	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 	"github.com/gotenberg/gotenberg/v8/pkg/modules/api"
 	libeofficeapi "github.com/gotenberg/gotenberg/v8/pkg/modules/libreoffice/api"
+	flag "github.com/spf13/pflag"
 )
 
 func init() {
@@ -75,7 +74,9 @@ func (mod *LibreOffice) Routes() ([]api.Route, error) {
 	}
 
 	return []api.Route{
-		convertRoute(mod.api, mod.engine),
+		convertDocxRoute(mod.api),
+		convertTxtRoute(mod.api),
+		convertPdfRoute(mod.api, mod.engine),
 	}, nil
 }
 

@@ -141,8 +141,8 @@ run_cmd "$cmd"
 if [ "$platform" != "linux/amd64" ]; then
   echo "⚠️ Skip Cloud Run variant(s)"
   echo "✅ Done!"
-  echo "tags=$(join "," "${tags[@]}")" >> "$GITHUB_OUTPUT"
-  echo "tags_cloud_run=$(join "," "${tags_cloud_run[@]}")" >> "$GITHUB_OUTPUT"
+  echo "tags=$(join "," "${tags[@]}")" | sed "s,${DOCKER_REGISTRY}/${DOCKER_REPOSITORY},,g" >> "$GITHUB_OUTPUT"
+  echo "tags_cloud_run=$(join "," "${tags_cloud_run[@]}")" | sed "s,${DOCKER_REGISTRY}/${DOCKER_REPOSITORY},,g" >> "$GITHUB_OUTPUT"
   exit 0
 fi
 
@@ -156,6 +156,6 @@ cmd="docker build \
 run_cmd "$cmd"
 
 echo "✅ Done!"
-echo "tags=$(join "," "${tags[@]}")" >> "$GITHUB_OUTPUT"
-echo "tags_cloud_run=$(join "," "${tags_cloud_run[@]}")" >> "$GITHUB_OUTPUT"
+echo "tags=$(join "," "${tags[@]}" | sed "s,${DOCKER_REGISTRY}/${DOCKER_REPOSITORY},,g")" >> "$GITHUB_OUTPUT"
+echo "tags_cloud_run=$(join "," "${tags_cloud_run[@]}" | sed "s,${DOCKER_REGISTRY}/${DOCKER_REPOSITORY},,g")" >> "$GITHUB_OUTPUT"
 exit 0

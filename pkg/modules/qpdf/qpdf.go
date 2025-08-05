@@ -10,9 +10,8 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"go.uber.org/zap"
-
 	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
+	"go.uber.org/zap"
 )
 
 func init() {

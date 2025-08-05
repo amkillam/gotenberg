@@ -11,11 +11,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
-
-	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 )
 
 var (

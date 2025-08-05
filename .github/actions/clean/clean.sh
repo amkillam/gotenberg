@@ -14,29 +14,33 @@ dry_run=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --tags)
-      tags="$2"
-      shift 2
-      ;;
-    --snapshot-version)
-      snapshot_version="${2//v/}"
-      shift 2
-      ;;
-    --dry-run)
-      dry_run="$2"
-      shift 2
-      ;;
-    *)
-      echo "Unknown option $1"
-      exit 1
-      ;;
+  --tags)
+    tags="$2"
+    shift 2
+    ;;
+  --snapshot-version)
+    snapshot_version="${2//v/}"
+    shift 2
+    ;;
+  --dry-run)
+    dry_run="$2"
+    shift 2
+    ;;
+  *)
+    echo "Unknown option $1"
+    exit 1
+    ;;
   esac
 done
 
 echo "Clean tag(s) from Docker Hub 🧹"
 echo
 
-IFS=',' read -ra tags_to_delete <<< "$tags"
+tags_to_delete=()
+for tag_to_delete in $(echo "$tags" | sed 's/,/ /g'); do
+  tags_to_delete+=("${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}${tag_to_delete}")
+done
+
 if [ -n "$snapshot_version" ]; then
   tags_to_delete+=("$DOCKER_REGISTRY/snapshot:$snapshot_version")
   tags_to_delete+=("$DOCKER_REGISTRY/snapshot:$snapshot_version-cloudrun")
@@ -81,7 +85,7 @@ else
     exit 1
   fi
 
-  token=$(jq -r '.token' <<< "$json_body")
+  token=$(jq -r '.token' <<<"$json_body")
   echo
 fi
 
@@ -96,7 +100,7 @@ for tag in "${tags_to_delete[@]}"; do
     echo
   else
     echo "🌐 Delete tag $tag"
-    IFS=':' read -ra tag_parts <<< "$tag"
+    IFS=':' read -ra tag_parts <<<"$tag"
 
     readarray -t lines < <(
       curl -s -X DELETE \

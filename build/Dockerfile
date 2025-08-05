@@ -49,7 +49,7 @@ RUN go mod download &&\
 COPY cmd ./cmd
 COPY pkg ./pkg
 
-RUN go build -o gotenberg -ldflags "-s -w -X 'github.com/gotenberg/gotenberg/v8/cmd.Version=$GOTENBERG_VERSION'" cmd/gotenberg/main.go
+RUN go build -o gotenberg -ldflags "-s -w -X 'github.com/amkillam/gotenberg/v8/cmd.Version=$GOTENBERG_VERSION'" cmd/gotenberg/main.go
 
 # ----------------------------------------------
 # Compress Golang binaries stage
@@ -115,11 +115,11 @@ ARG NOTO_COLOR_EMOJI_VERSION=v2.047
 ARG PDFTK_VERSION=v3.3.3
 
 LABEL org.opencontainers.image.title="Gotenberg" \
-    org.opencontainers.image.description="A containerized API for seamless PDF conversion." \
+    org.opencontainers.image.description="A containerized API for seamless conversion to PDF, DOCX, and TXT." \
     org.opencontainers.image.version="$GOTENBERG_VERSION" \
     org.opencontainers.image.authors="Julien Neuhart <neuhart.julien@gmail.com>" \
     org.opencontainers.image.documentation="https://gotenberg.dev" \
-    org.opencontainers.image.source="https://github.com/gotenberg/gotenberg"
+    org.opencontainers.image.source="https://github.com/amkillam/gotenberg"
 
 RUN \
     # Create a non-root user.

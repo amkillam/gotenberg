@@ -14,14 +14,13 @@ import (
 	"time"
 
 	"github.com/dlclark/regexp2"
+	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
+	"github.com/gotenberg/gotenberg/v8/pkg/modules/api"
+	"github.com/gotenberg/gotenberg/v8/pkg/modules/pdfengines"
 	"github.com/labstack/echo/v4"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday/v2"
 	"go.uber.org/multierr"
-
-	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
-	"github.com/gotenberg/gotenberg/v8/pkg/modules/api"
-	"github.com/gotenberg/gotenberg/v8/pkg/modules/pdfengines"
 )
 
 // FormDataChromiumOptions creates [Options] from the form data. Fallback to

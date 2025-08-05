@@ -7,24 +7,23 @@ import (
 	"slices"
 	"strconv"
 
-	"github.com/labstack/echo/v4"
-
 	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 	"github.com/gotenberg/gotenberg/v8/pkg/modules/api"
 	libreofficeapi "github.com/gotenberg/gotenberg/v8/pkg/modules/libreoffice/api"
 	"github.com/gotenberg/gotenberg/v8/pkg/modules/pdfengines"
+	"github.com/labstack/echo/v4"
 )
 
 // convertRoute returns an [api.Route] which can convert LibreOffice documents
 // to PDF.
-func convertRoute(libreOffice libreofficeapi.Uno, engine gotenberg.PdfEngine) api.Route {
+func convertPdfRoute(libreOffice libreofficeapi.Uno, engine gotenberg.PdfEngine) api.Route {
 	return api.Route{
 		Method:      http.MethodPost,
 		Path:        "/forms/libreoffice/convert",
 		IsMultipart: true,
 		Handler: func(c echo.Context) error {
 			ctx := c.Get("context").(*api.Context)
-			defaultOptions := libreofficeapi.DefaultOptions()
+			defaultOptions := libreofficeapi.DefaultPdfOptions()
 
 			form := ctx.FormData()
 			splitMode := pdfengines.FormDataPdfSplitMode(form, false)
@@ -137,7 +136,7 @@ func convertRoute(libreOffice libreofficeapi.Uno, engine gotenberg.PdfEngine) ap
 			outputPaths := make([]string, len(inputPaths))
 			for i, inputPath := range inputPaths {
 				outputPaths[i] = ctx.GeneratePath(".pdf")
-				options := libreofficeapi.Options{
+				options := libreofficeapi.PdfOptions{
 					Password:                        password,
 					Landscape:                       landscape,
 					PageRanges:                      nativePageRanges,
@@ -283,6 +282,90 @@ func convertRoute(libreOffice libreofficeapi.Uno, engine gotenberg.PdfEngine) ap
 			}
 
 			return nil
+		},
+	}
+}
+
+func documentFormatHandler(libreOffice libreofficeapi.Uno, c echo.Context, formatExt string) error {
+	ctx := c.Get("context").(*api.Context)
+	form := ctx.FormData()
+
+	var inputPaths []string
+
+	err := form.
+		MandatoryPaths(libreOffice.Extensions(), &inputPaths).
+		Validate()
+	if err != nil {
+		return fmt.Errorf("validate form data: %w", err)
+	}
+
+	outputPaths := make([]string, len(inputPaths))
+	for i, inputPath := range inputPaths {
+		outputPaths[i] = ctx.GeneratePath(fmt.Sprintf(".%s", formatExt))
+		err = libreOffice.DocumentFormat(ctx, ctx.Log(), inputPath, outputPaths[i], formatExt)
+		if err != nil {
+			if errors.Is(err, libreofficeapi.ErrUnoException) {
+				return api.WrapError(
+					fmt.Errorf("convert to %s: %w", formatExt, err),
+					api.NewSentinelHttpError(http.StatusBadRequest, "LibreOffice failed to process a document. The exact cause is uncertain."),
+				)
+			}
+
+			if errors.Is(err, libreofficeapi.ErrRuntimeException) {
+				return api.WrapError(
+					fmt.Errorf("convert to %s: %w", formatExt, err),
+					api.NewSentinelHttpError(http.StatusBadRequest, "LibreOffice failed to process a document. The exact cause is uncertain."),
+				)
+			}
+
+			return fmt.Errorf("convert to %s: %w", formatExt, err)
+		}
+	}
+
+	if len(outputPaths) > 1 {
+		// If .zip archive, document.docx -> document.docx.docx.
+		for i, inputPath := range inputPaths {
+			outputPath := fmt.Sprintf("%s.%s", inputPath, formatExt)
+
+			err = ctx.Rename(outputPaths[i], outputPath)
+			if err != nil {
+				return fmt.Errorf("rename output path: %w", err)
+			}
+
+			outputPaths[i] = outputPath
+		}
+	}
+
+	err = ctx.AddOutputPaths(outputPaths...)
+	if err != nil {
+		return fmt.Errorf("add output paths: %w", err)
+	}
+
+	return nil
+}
+
+// convertRoute returns an [api.Route] which can convert LibreOffice documents
+// to DOCX.
+func convertDocxRoute(libreOffice libreofficeapi.Uno) api.Route {
+	return api.Route{
+		Method:      http.MethodPost,
+		Path:        "/forms/libreoffice/convert/docx",
+		IsMultipart: true,
+		Handler: func(c echo.Context) error {
+			return documentFormatHandler(libreOffice, c, "docx")
+		},
+	}
+}
+
+// convertRoute returns an [api.Route] which can convert LibreOffice documents
+// to DOCX.
+func convertTxtRoute(libreOffice libreofficeapi.Uno) api.Route {
+	return api.Route{
+		Method:      http.MethodPost,
+		Path:        "/forms/libreoffice/convert/txt",
+		IsMultipart: true,
+		Handler: func(c echo.Context) error {
+			return documentFormatHandler(libreOffice, c, "txt")
 		},
 	}
 }

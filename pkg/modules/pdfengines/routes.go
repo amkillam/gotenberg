@@ -9,10 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/labstack/echo/v4"
-
 	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 	"github.com/gotenberg/gotenberg/v8/pkg/modules/api"
+	"github.com/labstack/echo/v4"
 )
 
 // FormDataPdfSplitMode creates a [gotenberg.SplitMode] from the form data.

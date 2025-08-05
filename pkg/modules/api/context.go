@@ -16,14 +16,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/labstack/echo/v4"
 	"github.com/mholt/archives"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/text/unicode/norm"
-
-	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 )
 
 var (

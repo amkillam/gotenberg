@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 	"go.uber.org/multierr"
 	"go.uber.org/zap"
-
-	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 )
 
 type multiPdfEngines struct {

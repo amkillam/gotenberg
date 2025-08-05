@@ -12,14 +12,13 @@ import (
 
 	"github.com/alexliesenfeld/health"
 	"github.com/dlclark/regexp2"
+	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 	"github.com/labstack/echo/v4"
 	flag "github.com/spf13/pflag"
 	"go.uber.org/multierr"
 	"go.uber.org/zap"
 	"golang.org/x/net/http2"
 	"golang.org/x/sync/errgroup"
-
-	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 )
 
 func init() {

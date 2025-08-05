@@ -106,7 +106,6 @@ jobs:
           docker_hub_username: ${{ secrets.DOCKERHUB_USERNAME }}
           docker_hub_password: ${{ secrets.DOCKERHUB_TOKEN }}
           tags: "${{ needs.release_amd64.outputs.tags }},${{ needs.release_386.outputs.tags }},${{ needs.release_arm64.outputs.tags }},${{ needs.release_arm_v7.outputs.tags }}"
-          alternate_registry: thecodingmachine
 
       - name: Clean
         uses: ./.github/actions/clean

@@ -13,11 +13,10 @@ import (
 	"github.com/alexliesenfeld/health"
 	"github.com/chromedp/cdproto/network"
 	"github.com/dlclark/regexp2"
-	flag "github.com/spf13/pflag"
-	"go.uber.org/zap"
-
 	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 	"github.com/gotenberg/gotenberg/v8/pkg/modules/api"
+	flag "github.com/spf13/pflag"
+	"go.uber.org/zap"
 )
 
 func init() {

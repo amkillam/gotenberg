@@ -16,10 +16,9 @@ import (
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"github.com/dlclark/regexp2"
+	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 	"github.com/shirou/gopsutil/v4/process"
 	"go.uber.org/zap"
-
-	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 )
 
 type browser interface {

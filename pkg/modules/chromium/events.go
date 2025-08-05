@@ -14,11 +14,10 @@ import (
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"github.com/dlclark/regexp2"
+	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 	"go.uber.org/multierr"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
-
-	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 )
 
 type eventRequestPausedOptions struct {

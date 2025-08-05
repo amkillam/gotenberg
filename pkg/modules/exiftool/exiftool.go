@@ -11,9 +11,8 @@ import (
 	"syscall"
 
 	"github.com/barasher/go-exiftool"
-	"go.uber.org/zap"
-
 	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
+	"go.uber.org/zap"
 )
 
 func init() {

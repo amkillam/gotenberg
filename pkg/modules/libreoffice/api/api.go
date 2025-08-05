@@ -11,12 +11,11 @@ import (
 	"time"
 
 	"github.com/alexliesenfeld/health"
+	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
+	"github.com/gotenberg/gotenberg/v8/pkg/modules/api"
 	flag "github.com/spf13/pflag"
 	"go.uber.org/multierr"
 	"go.uber.org/zap"
-
-	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
-	"github.com/gotenberg/gotenberg/v8/pkg/modules/api"
 )
 
 func init() {
@@ -52,7 +51,7 @@ type Api struct {
 
 // Options gathers available options when converting a document to PDF.
 // See: https://help.libreoffice.org/latest/en-US/text/shared/guide/pdf_params.html.
-type Options struct {
+type PdfOptions struct {
 	// Password specifies the password for opening the source file.
 	Password string
 
@@ -152,9 +151,9 @@ type Options struct {
 	PdfFormats gotenberg.PdfFormats
 }
 
-// DefaultOptions returns the default values for Options.
-func DefaultOptions() Options {
-	return Options{
+// DefaultPdfOptions returns the default values for Options.
+func DefaultPdfOptions() PdfOptions {
+	return PdfOptions{
 		Password:                        "",
 		Landscape:                       false,
 		PageRanges:                      "",
@@ -187,7 +186,9 @@ func DefaultOptions() Options {
 
 // Uno is an abstraction on top of the Universal Network Objects API.
 type Uno interface {
-	Pdf(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, options Options) error
+	Pdf(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, options PdfOptions) error
+	DocumentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string) error
+
 	Extensions() []string
 }
 
@@ -402,7 +403,7 @@ func (a *Api) LibreOffice() (Uno, error) {
 }
 
 // Pdf converts a document to PDF.
-func (a *Api) Pdf(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, options Options) error {
+func (a *Api) Pdf(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, options PdfOptions) error {
 	err := a.supervisor.Run(ctx, logger, func() error {
 		return a.libreOffice.pdf(ctx, logger, inputPath, outputPath, options)
 	})
@@ -415,6 +416,25 @@ func (a *Api) Pdf(ctx context.Context, logger *zap.Logger, inputPath, outputPath
 	if errors.Is(err, ErrCoreDumped) {
 		logger.Debug(fmt.Sprintf("got a '%s' error, retry conversion", err))
 		return a.Pdf(ctx, logger, inputPath, outputPath, options)
+	}
+
+	return fmt.Errorf("supervisor run task: %w", err)
+}
+
+// Docx converts a document to DOCX.
+func (a *Api) DocumentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string) error {
+	err := a.supervisor.Run(ctx, logger, func() error {
+		return a.libreOffice.documentFormat(ctx, logger, inputPath, outputPath, formatExt)
+	})
+
+	if err == nil {
+		return nil
+	}
+
+	// See https://github.com/gotenberg/gotenberg/issues/639.
+	if errors.Is(err, ErrCoreDumped) {
+		logger.Debug(fmt.Sprintf("got a '%s' error, retry conversion", err))
+		return a.DocumentFormat(ctx, logger, inputPath, outputPath, formatExt)
 	}
 
 	return fmt.Errorf("supervisor run task: %w", err)

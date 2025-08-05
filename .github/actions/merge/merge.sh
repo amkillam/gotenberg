@@ -39,7 +39,7 @@ echo
 echo "Tag(s) to merge:"
 IFS=',' read -ra tags_to_merge <<< "$tags"
 for tag in "${tags_to_merge[@]}"; do
-  echo "- $tag"
+  echo "- ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}${tag}"
 done
 
 if [ -n "$alternate_registry" ]; then
@@ -55,12 +55,13 @@ echo
 declare -A merge_map
 
 for tag in "${tags_to_merge[@]}"; do
-  target_tag="${tag//-amd64/}"
+  target_tag="${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}${tag}"
+  target_tag="${target_tag//-amd64/}"
   target_tag="${target_tag//-arm64/}"
   target_tag="${target_tag//-arm/}"
   target_tag="${target_tag//-386/}"
 
-  merge_map["$target_tag"]+="$tag "
+  merge_map["$target_tag"]+="${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}${tag} "
 done
 
 # Merge tags.

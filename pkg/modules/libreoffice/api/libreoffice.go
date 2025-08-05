@@ -11,14 +11,14 @@ import (
 	"sync/atomic"
 	"time"
 
-	"go.uber.org/zap"
-
 	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
+	"go.uber.org/zap"
 )
 
 type libreOffice interface {
 	gotenberg.Process
-	pdf(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, options Options) error
+	pdf(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, options PdfOptions) error
+	documentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string) error
 }
 
 type libreOfficeArguments struct {
@@ -246,7 +246,7 @@ func (p *libreOfficeProcess) Healthy(logger *zap.Logger) bool {
 	return false
 }
 
-func (p *libreOfficeProcess) pdf(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, options Options) error {
+func (p *libreOfficeProcess) pdf(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, options PdfOptions) error {
 	if !p.isStarted.Load() {
 		return errors.New("LibreOffice not started, cannot handle PDF conversion")
 	}
@@ -364,6 +364,55 @@ func (p *libreOfficeProcess) pdf(ctx context.Context, logger *zap.Logger, inputP
 	}
 
 	return fmt.Errorf("convert to PDF: %w", err)
+}
+
+func (p *libreOfficeProcess) documentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string) error {
+	if !p.isStarted.Load() {
+		return errors.New("LibreOffice not started, cannot handle PDF conversion")
+	}
+
+	args := []string{
+		"--no-launch",
+		"--format",
+		formatExt,
+	}
+
+	args = append(args, "--port", fmt.Sprintf("%d", p.socketPort))
+
+	checkedEntry := logger.Check(zap.DebugLevel, "check for debug level before setting high verbosity")
+	if checkedEntry != nil {
+		args = append(args, "-vvv")
+	}
+
+	args = append(args, "--output", outputPath, inputPath)
+
+	cmd, err := gotenberg.CommandContext(ctx, logger, p.arguments.unoBinPath, args...)
+	if err != nil {
+		return fmt.Errorf("create uno command: %w", err)
+	}
+
+	logger.Debug(fmt.Sprintf("convert to %s starting", formatExt))
+
+	exitCode, err := cmd.Exec()
+	if err == nil {
+		return nil
+	}
+
+	// LibreOffice's errors are not explicit.
+	// We may want to retry in case of a core-dumped event.
+	// See https://github.com/gotenberg/gotenberg/issues/639.
+	if strings.Contains(err.Error(), "core dumped") {
+		return ErrCoreDumped
+	}
+
+	if exitCode == 5 {
+		return ErrUnoException
+	}
+	if exitCode == 6 {
+		return ErrRuntimeException
+	}
+
+	return fmt.Errorf("convert to DOCX: %w", err)
 }
 
 // Interface guards.

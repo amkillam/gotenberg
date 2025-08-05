@@ -11,9 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"go.uber.org/multierr"
-
 	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
+	"go.uber.org/multierr"
 )
 
 // FormData is a helper for validating and hydrating values from a

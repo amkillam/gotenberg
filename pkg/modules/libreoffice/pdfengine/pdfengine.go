@@ -5,10 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"go.uber.org/zap"
-
 	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 	"github.com/gotenberg/gotenberg/v8/pkg/modules/libreoffice/api"
+	"go.uber.org/zap"
 )
 
 func init() {
@@ -66,7 +65,7 @@ func (engine *LibreOfficePdfEngine) Flatten(ctx context.Context, logger *zap.Log
 // PDF format is requested, it returns a [gotenberg.ErrPdfFormatNotSupported]
 // error.
 func (engine *LibreOfficePdfEngine) Convert(ctx context.Context, logger *zap.Logger, formats gotenberg.PdfFormats, inputPath, outputPath string) error {
-	opts := api.DefaultOptions()
+	opts := api.DefaultPdfOptions()
 	opts.PdfFormats = formats
 	err := engine.unoApi.Pdf(ctx, logger, inputPath, outputPath, opts)
 

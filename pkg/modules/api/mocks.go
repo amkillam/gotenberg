@@ -2,10 +2,9 @@ package api
 
 import (
 	"github.com/alexliesenfeld/health"
+	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
-
-	"github.com/gotenberg/gotenberg/v8/pkg/gotenberg"
 )
 
 // ContextMock is a helper for tests.

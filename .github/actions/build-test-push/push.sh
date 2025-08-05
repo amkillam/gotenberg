@@ -34,7 +34,7 @@ echo
 echo "Tag(s) to push:"
 IFS=',' read -ra tags_to_push <<< "$tags"
 for tag in "${tags_to_push[@]}"; do
-  echo "- $tag"
+  echo "- ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}${tag}"
 done
 
 if [ "$dry_run" = "true" ]; then
@@ -59,10 +59,10 @@ run_cmd() {
 }
 
 for tag in "${tags_to_push[@]}"; do
-  cmd="docker push $tag"
+  cmd="docker push ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}${tag}"
   run_cmd "$cmd"
 
-  echo "➡️ $tag pushed"
+  echo "➡️ ${DOCKER_REGISTRY}/${DOCKER_REPOSITORY}${tag} pushed"
   echo
 done
 

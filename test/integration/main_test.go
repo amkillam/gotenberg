@@ -9,9 +9,8 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/cucumber/godog/colors"
-	flag "github.com/spf13/pflag"
-
 	"github.com/gotenberg/gotenberg/v8/test/integration/scenario"
+	flag "github.com/spf13/pflag"
 )
 
 func TestMain(m *testing.M) {

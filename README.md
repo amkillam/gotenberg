@@ -1,7 +1,7 @@
 <p align="center">
     <img src="https://user-images.githubusercontent.com/8983173/130322857-185831e2-f041-46eb-a17f-0a69d066c4e5.png" alt="Gotenberg Logo" width="150" height="150" />
     <h3 align="center">Gotenberg</h3>
-    <p align="center">A containerized API for seamless PDF conversion</p>
+    <p align="center">A containerized API for seamless conversion to DOCX, PDF, and TXT</p>
     <p align="center">
         <a href="https://hub.docker.com/r/gotenberg/gotenberg"><img alt="Total downloads (gotenberg/gotenberg)" src="https://img.shields.io/docker/pulls/gotenberg/gotenberg"></a>
         <a href="https://hub.docker.com/r/thecodingmachine/gotenberg"><img alt="Total downloads (thecodingmachine/gotenberg)" src="https://img.shields.io/docker/pulls/thecodingmachine/gotenberg"></a>
@@ -17,7 +17,7 @@
 ---
 
 **Gotenberg** provides a developer-friendly API to interact with powerful tools like Chromium and LibreOffice for converting
-numerous document formats (HTML, Markdown, Word, Excel, etc.) into PDF files, and more!
+numerous document formats (HTML, Markdown, Word, Excel, etc.) into PDF, DOCX, and TXT files!
 
 ## Quick Start
 
