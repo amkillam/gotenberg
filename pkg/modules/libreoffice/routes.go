@@ -286,14 +286,18 @@ func convertPdfRoute(libreOffice libreofficeapi.Uno, engine gotenberg.PdfEngine)
 	}
 }
 
-func documentFormatHandler(libreOffice libreofficeapi.Uno, c echo.Context, formatExt string, conversionSpecifier string) error {
+func documentFormatHandler(libreOffice libreofficeapi.Uno, c echo.Context) error {
 	ctx := c.Get("context").(*api.Context)
 	form := ctx.FormData()
 
 	var inputPaths []string
+	var formatExt string
+	var outputFilter string
 
 	err := form.
 		MandatoryPaths(libreOffice.Extensions(), &inputPaths).
+		MandatoryString("formatExtension", &formatExt).
+		MandatoryString("outputFilter", &outputFilter).
 		Validate()
 	if err != nil {
 		return fmt.Errorf("validate form data: %w", err)
@@ -302,7 +306,7 @@ func documentFormatHandler(libreOffice libreofficeapi.Uno, c echo.Context, forma
 	outputPaths := make([]string, len(inputPaths))
 	for i, inputPath := range inputPaths {
 		outputPaths[i] = ctx.GeneratePath(fmt.Sprintf(".%s", formatExt))
-		err = libreOffice.DocumentFormat(ctx, ctx.Log(), inputPath, outputPaths[i], formatExt, conversionSpecifier)
+		err = libreOffice.DocumentFormat(ctx, ctx.Log(), inputPath, outputPaths[i], formatExt, outputFilter)
 		if err != nil {
 			if errors.Is(err, libreofficeapi.ErrUnoException) {
 				return api.WrapError(
@@ -345,40 +349,14 @@ func documentFormatHandler(libreOffice libreofficeapi.Uno, c echo.Context, forma
 }
 
 // convertRoute returns an [api.Route] which can convert LibreOffice documents
-// to DOCX.
-func convertDocxRoute(libreOffice libreofficeapi.Uno) api.Route {
+// to an arbitrary, form-specified format.
+func convertToDocumentFormatRoute(libreOffice libreofficeapi.Uno) api.Route {
 	return api.Route{
 		Method:      http.MethodPost,
-		Path:        "/forms/libreoffice/convert/docx",
+		Path:        "/forms/libreoffice/convert/doc",
 		IsMultipart: true,
 		Handler: func(c echo.Context) error {
-			return documentFormatHandler(libreOffice, c, "docx", "docx")
-		},
-	}
-}
-
-// convertRoute returns an [api.Route] which can convert LibreOffice documents
-// to DOCX.
-func convertTxtRoute(libreOffice libreofficeapi.Uno) api.Route {
-	return api.Route{
-		Method:      http.MethodPost,
-		Path:        "/forms/libreoffice/convert/txt",
-		IsMultipart: true,
-		Handler: func(c echo.Context) error {
-			return documentFormatHandler(libreOffice, c, "txt", "txt:Text")
-		},
-	}
-}
-
-// convertRoute returns an [api.Route] which can convert LibreOffice documents
-// to DOCX.
-func convertCsvRoute(libreOffice libreofficeapi.Uno) api.Route {
-	return api.Route{
-		Method:      http.MethodPost,
-		Path:        "/forms/libreoffice/convert/csv",
-		IsMultipart: true,
-		Handler: func(c echo.Context) error {
-			return documentFormatHandler(libreOffice, c, "txt", "csv")
+			return documentFormatHandler(libreOffice, c)
 		},
 	}
 }
