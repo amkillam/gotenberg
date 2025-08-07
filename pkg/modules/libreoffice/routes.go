@@ -292,12 +292,10 @@ func documentFormatHandler(libreOffice libreofficeapi.Uno, c echo.Context) error
 
 	var inputPaths []string
 	var formatExt string
-	var outputFilter string
 
 	err := form.
 		MandatoryPaths(libreOffice.Extensions(), &inputPaths).
 		MandatoryString("formatExtension", &formatExt).
-		MandatoryString("outputFilter", &outputFilter).
 		Validate()
 	if err != nil {
 		return fmt.Errorf("validate form data: %w", err)
@@ -306,7 +304,7 @@ func documentFormatHandler(libreOffice libreofficeapi.Uno, c echo.Context) error
 	outputPaths := make([]string, len(inputPaths))
 	for i, inputPath := range inputPaths {
 		outputPaths[i] = ctx.GeneratePath(fmt.Sprintf(".%s", formatExt))
-		err = libreOffice.DocumentFormat(ctx, ctx.Log(), inputPath, outputPaths[i], formatExt, outputFilter)
+		err = libreOffice.DocumentFormat(ctx, ctx.Log(), inputPath, outputPaths[i], formatExt)
 		if err != nil {
 			if errors.Is(err, libreofficeapi.ErrUnoException) {
 				return api.WrapError(

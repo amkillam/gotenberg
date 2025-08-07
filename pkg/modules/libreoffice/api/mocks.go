@@ -11,7 +11,7 @@ import (
 // ApiMock is a mock for the [Uno] interface.
 type ApiMock struct {
 	PdfMock            func(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, options PdfOptions) error
-	DocumentFormatMock func(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string, conversionSpecifier string) error
+	DocumentFormatMock func(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string) error
 	ExtensionsMock     func() []string
 }
 
@@ -19,8 +19,8 @@ func (api *ApiMock) Pdf(ctx context.Context, logger *zap.Logger, inputPath, outp
 	return api.PdfMock(ctx, logger, inputPath, outputPath, options)
 }
 
-func (api *ApiMock) DocumentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string, conversionSpecifier string) error {
-	return api.DocumentFormatMock(ctx, logger, inputPath, outputPath, formatExt, conversionSpecifier)
+func (api *ApiMock) DocumentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string) error {
+	return api.DocumentFormatMock(ctx, logger, inputPath, outputPath, formatExt)
 }
 
 func (api *ApiMock) Extensions() []string {
@@ -42,7 +42,7 @@ type libreOfficeMock struct {
 
 	gotenberg.ProcessMock
 	pdfMock            func(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, options PdfOptions) error
-	documentFormatMock func(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, conversionSpecifier string) error
+	documentFormatMock func(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string) error
 }
 
 func (b *libreOfficeMock) pdf(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, options PdfOptions) error {
@@ -56,8 +56,8 @@ func (b *libreOfficeMock) pdf(ctx context.Context, logger *zap.Logger, inputPath
 	return err
 }
 
-func (b *libreOfficeMock) documentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, conversionSpecifier string) error {
-	err := b.documentFormatMock(ctx, logger, inputPath, outputPath, conversionSpecifier)
+func (b *libreOfficeMock) documentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string) error {
+	err := b.documentFormatMock(ctx, logger, inputPath, outputPath, formatExt)
 	if errors.Is(err, ErrCoreDumped) {
 		b.errCoreDumpedCount += 1
 	}

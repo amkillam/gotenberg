@@ -366,7 +366,7 @@ func (p *libreOfficeProcess) pdf(ctx context.Context, logger *zap.Logger, inputP
 	return fmt.Errorf("convert to PDF: %w", err)
 }
 
-func (p *libreOfficeProcess) documentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, conversionSpecifier string) error {
+func (p *libreOfficeProcess) documentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string) error {
 	if !p.isStarted.Load() {
 		return errors.New("LibreOffice not started, cannot handle PDF conversion")
 	}
@@ -374,7 +374,7 @@ func (p *libreOfficeProcess) documentFormat(ctx context.Context, logger *zap.Log
 	args := []string{
 		"--no-launch",
 		"--format",
-		conversionSpecifier,
+		formatExt,
 	}
 
 	args = append(args, "--port", fmt.Sprintf("%d", p.socketPort))
@@ -391,7 +391,7 @@ func (p *libreOfficeProcess) documentFormat(ctx context.Context, logger *zap.Log
 		return fmt.Errorf("create uno command: %w", err)
 	}
 
-	logger.Debug(fmt.Sprintf("convert to with arg %s starting", conversionSpecifier))
+	logger.Debug(fmt.Sprintf("convert to with arg %s starting", formatExt))
 
 	exitCode, err := cmd.Exec()
 	if err == nil {
@@ -412,7 +412,7 @@ func (p *libreOfficeProcess) documentFormat(ctx context.Context, logger *zap.Log
 		return ErrRuntimeException
 	}
 
-	return fmt.Errorf("convert to DOCX: %w", err)
+	return fmt.Errorf("convert with format \"%s\": %w", formatExt, err)
 }
 
 // Interface guards.

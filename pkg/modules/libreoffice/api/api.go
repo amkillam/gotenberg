@@ -49,7 +49,7 @@ type Api struct {
 	supervisor  gotenberg.ProcessSupervisor
 }
 
-// Options gathers available options when converting a document to PDF.
+// PdfOptions gathers available options when converting a document to PDF.
 // See: https://help.libreoffice.org/latest/en-US/text/shared/guide/pdf_params.html.
 type PdfOptions struct {
 	// Password specifies the password for opening the source file.
@@ -187,7 +187,7 @@ func DefaultPdfOptions() PdfOptions {
 // Uno is an abstraction on top of the Universal Network Objects API.
 type Uno interface {
 	Pdf(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, options PdfOptions) error
-	DocumentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string, conversionSpecifier string) error
+	DocumentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string) error
 
 	Extensions() []string
 }
@@ -421,10 +421,10 @@ func (a *Api) Pdf(ctx context.Context, logger *zap.Logger, inputPath, outputPath
 	return fmt.Errorf("supervisor run task: %w", err)
 }
 
-// Docx converts a document to DOCX.
-func (a *Api) DocumentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string, conversionSpecifier string) error {
+// DocumentFormat converts a document to an arbitrary, provided document format.
+func (a *Api) DocumentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string) error {
 	err := a.supervisor.Run(ctx, logger, func() error {
-		return a.libreOffice.documentFormat(ctx, logger, inputPath, outputPath, conversionSpecifier)
+		return a.libreOffice.documentFormat(ctx, logger, inputPath, outputPath, formatExt)
 	})
 
 	if err == nil {
@@ -434,7 +434,7 @@ func (a *Api) DocumentFormat(ctx context.Context, logger *zap.Logger, inputPath,
 	// See https://github.com/gotenberg/gotenberg/issues/639.
 	if errors.Is(err, ErrCoreDumped) {
 		logger.Debug(fmt.Sprintf("got a '%s' error, retry conversion", err))
-		return a.DocumentFormat(ctx, logger, inputPath, outputPath, formatExt, conversionSpecifier)
+		return a.DocumentFormat(ctx, logger, inputPath, outputPath, formatExt)
 	}
 
 	return fmt.Errorf("supervisor run task: %w", err)
