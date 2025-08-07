@@ -286,7 +286,7 @@ func convertPdfRoute(libreOffice libreofficeapi.Uno, engine gotenberg.PdfEngine)
 	}
 }
 
-func documentFormatHandler(libreOffice libreofficeapi.Uno, c echo.Context, formatExt string) error {
+func documentFormatHandler(libreOffice libreofficeapi.Uno, c echo.Context, formatExt string, conversionSpecifier string) error {
 	ctx := c.Get("context").(*api.Context)
 	form := ctx.FormData()
 
@@ -302,7 +302,7 @@ func documentFormatHandler(libreOffice libreofficeapi.Uno, c echo.Context, forma
 	outputPaths := make([]string, len(inputPaths))
 	for i, inputPath := range inputPaths {
 		outputPaths[i] = ctx.GeneratePath(fmt.Sprintf(".%s", formatExt))
-		err = libreOffice.DocumentFormat(ctx, ctx.Log(), inputPath, outputPaths[i], formatExt)
+		err = libreOffice.DocumentFormat(ctx, ctx.Log(), inputPath, outputPaths[i], formatExt, conversionSpecifier)
 		if err != nil {
 			if errors.Is(err, libreofficeapi.ErrUnoException) {
 				return api.WrapError(
@@ -352,7 +352,7 @@ func convertDocxRoute(libreOffice libreofficeapi.Uno) api.Route {
 		Path:        "/forms/libreoffice/convert/docx",
 		IsMultipart: true,
 		Handler: func(c echo.Context) error {
-			return documentFormatHandler(libreOffice, c, "docx")
+			return documentFormatHandler(libreOffice, c, "docx", "docx")
 		},
 	}
 }
@@ -365,7 +365,20 @@ func convertTxtRoute(libreOffice libreofficeapi.Uno) api.Route {
 		Path:        "/forms/libreoffice/convert/txt",
 		IsMultipart: true,
 		Handler: func(c echo.Context) error {
-			return documentFormatHandler(libreOffice, c, "txt")
+			return documentFormatHandler(libreOffice, c, "txt", "txt:Text")
+		},
+	}
+}
+
+// convertRoute returns an [api.Route] which can convert LibreOffice documents
+// to DOCX.
+func convertCsvRoute(libreOffice libreofficeapi.Uno) api.Route {
+	return api.Route{
+		Method:      http.MethodPost,
+		Path:        "/forms/libreoffice/convert/csv",
+		IsMultipart: true,
+		Handler: func(c echo.Context) error {
+			return documentFormatHandler(libreOffice, c, "txt", "csv")
 		},
 	}
 }

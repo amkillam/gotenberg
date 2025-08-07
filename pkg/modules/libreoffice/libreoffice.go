@@ -76,6 +76,7 @@ func (mod *LibreOffice) Routes() ([]api.Route, error) {
 	return []api.Route{
 		convertDocxRoute(mod.api),
 		convertTxtRoute(mod.api),
+		convertCsvRoute(mod.api),
 		convertPdfRoute(mod.api, mod.engine),
 	}, nil
 }

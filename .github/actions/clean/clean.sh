@@ -14,22 +14,22 @@ dry_run=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
-  --tags)
-    tags="$2"
-    shift 2
-    ;;
-  --snapshot-version)
-    snapshot_version="${2//v/}"
-    shift 2
-    ;;
-  --dry-run)
-    dry_run="$2"
-    shift 2
-    ;;
-  *)
-    echo "Unknown option $1"
-    exit 1
-    ;;
+    --tags)
+      tags="$2"
+      shift 2
+      ;;
+    --snapshot-version)
+      snapshot_version="${2//v/}"
+      shift 2
+      ;;
+    --dry-run)
+      dry_run="$2"
+      shift 2
+      ;;
+    *)
+      echo "Unknown option $1"
+      exit 1
+      ;;
   esac
 done
 
@@ -85,7 +85,7 @@ else
     exit 1
   fi
 
-  token=$(jq -r '.token' <<<"$json_body")
+  token=$(jq -r '.token' <<< "$json_body")
   echo
 fi
 
@@ -100,7 +100,7 @@ for tag in "${tags_to_delete[@]}"; do
     echo
   else
     echo "🌐 Delete tag $tag"
-    IFS=':' read -ra tag_parts <<<"$tag"
+    IFS=':' read -ra tag_parts <<< "$tag"
 
     readarray -t lines < <(
       curl -s -X DELETE \

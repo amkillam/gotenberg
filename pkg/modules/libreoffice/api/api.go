@@ -187,7 +187,7 @@ func DefaultPdfOptions() PdfOptions {
 // Uno is an abstraction on top of the Universal Network Objects API.
 type Uno interface {
 	Pdf(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, options PdfOptions) error
-	DocumentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string) error
+	DocumentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string, conversionSpecifier string) error
 
 	Extensions() []string
 }
@@ -422,9 +422,9 @@ func (a *Api) Pdf(ctx context.Context, logger *zap.Logger, inputPath, outputPath
 }
 
 // Docx converts a document to DOCX.
-func (a *Api) DocumentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string) error {
+func (a *Api) DocumentFormat(ctx context.Context, logger *zap.Logger, inputPath, outputPath string, formatExt string, conversionSpecifier string) error {
 	err := a.supervisor.Run(ctx, logger, func() error {
-		return a.libreOffice.documentFormat(ctx, logger, inputPath, outputPath, formatExt)
+		return a.libreOffice.documentFormat(ctx, logger, inputPath, outputPath, conversionSpecifier)
 	})
 
 	if err == nil {
@@ -434,7 +434,7 @@ func (a *Api) DocumentFormat(ctx context.Context, logger *zap.Logger, inputPath,
 	// See https://github.com/gotenberg/gotenberg/issues/639.
 	if errors.Is(err, ErrCoreDumped) {
 		logger.Debug(fmt.Sprintf("got a '%s' error, retry conversion", err))
-		return a.DocumentFormat(ctx, logger, inputPath, outputPath, formatExt)
+		return a.DocumentFormat(ctx, logger, inputPath, outputPath, formatExt, conversionSpecifier)
 	}
 
 	return fmt.Errorf("supervisor run task: %w", err)
