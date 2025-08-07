@@ -541,6 +541,7 @@ func (a *Api) Extensions() []string {
 		".sxi",
 		".sxm",
 		".sxw",
+		".tex",
 		".tga",
 		".tif",
 		".tiff",
